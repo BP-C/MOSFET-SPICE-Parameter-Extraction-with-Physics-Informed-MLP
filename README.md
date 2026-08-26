@@ -1,6 +1,4 @@
-======================================================================
 README — Projet MOSFET : Surrogate + MLP inverse
-======================================================================
 
 Ce projet permet de prédire des paramètres SPICE de MOSFET à partir de
 courbes électriques simulées.
@@ -16,9 +14,7 @@ reconstruit les courbes électriques à partir des paramètres SPICE.
 Le second notebook entraîne un MLP inverse qui prédit les paramètres
 SPICE à partir des courbes électriques.
 
-======================================================================
 1. INSTALLATION
-======================================================================
 
 Le projet contient un fichier requirements.txt regroupant les dépendances
 Python nécessaires.
@@ -57,9 +53,9 @@ pour accélérer les entraînements. Les notebooks sélectionnent
 automatiquement CUDA lorsqu'il est disponible ; sinon, ils fonctionnent
 sur CPU. [2] [4]
 
-======================================================================
+
 2. FICHIERS DE DONNÉES REQUIS
-======================================================================
+
 
 Les fichiers suivants doivent être présents dans le dossier de travail
 avant l'exécution des notebooks :
@@ -102,9 +98,9 @@ avant l'exécution des notebooks :
 
             (50000, 7)
 
-======================================================================
+
 3. PARAMÈTRES SPICE PRÉDITS
-======================================================================
+
 
 Les onze paramètres SPICE prédits sont :
 
@@ -127,9 +123,9 @@ Les colonnes correspondant à u0, ua, ub et uc sont transformées avec :
 avant la normalisation. La transformation inverse est appliquée lors de
 l'évaluation des prédictions. [2] [3]
 
-======================================================================
+
 4. DONNÉES ÉLECTRIQUES
-======================================================================
+
 
 Chaque échantillon comprend 101 points de tension de grille Vg et
 12 canaux électriques :
@@ -157,9 +153,9 @@ Avant d'être données au réseau, elles sont aplaties dans l'ordre
 
 Le MLP reçoit donc un vecteur de 1212 valeurs par échantillon. [2] [3]
 
-======================================================================
+
 5. ÉTAPE 1 — ENTRAÎNEMENT DU SURROGATE
-======================================================================
+
 
 Ouvrir le notebook :
 
@@ -219,9 +215,9 @@ canal, notamment MAE, RMSE et R². Il est recommandé de vérifier ces
 résultats avant de poursuivre, car le MLP utilise ce modèle pour les
 contraintes physiques. [3]
 
-======================================================================
+
 6. ÉTAPE 2 — ENTRAÎNEMENT DU MLP INVERSE
-======================================================================
+
 
 Ouvrir le notebook :
 
@@ -257,9 +253,9 @@ Le meilleur modèle est enregistré sous le nom :
 
     mosfet_mlp_10_10_25C/mlp_best.pth
 
-======================================================================
+
 7. FONCTION DE COÛT DU MLP
-======================================================================
+
 
 Le MLP est entraîné avec une fonction de coût composée de trois termes :
 
@@ -269,13 +265,11 @@ Le MLP est entraîné avec une fonction de coût composée de trois termes :
       + LAMBDA_CONDUCTANCE × Loss conductance
 
 1. Loss paramètres
-------------------
 
 Une Huber Loss compare les paramètres SPICE prédits aux paramètres de
 référence, dans l'espace normalisé.
 
 2. Loss Vth
------------
 
 Les paramètres prédits par le MLP sont envoyés dans le surrogate gelé,
 qui reconstruit les courbes log(Id).
@@ -286,7 +280,6 @@ pour chaque condition de Vbs, la relation :
     logId(Vth) = -7
 
 3. Loss conductance
--------------------
 
 La loss conductance compare les caractéristiques électriques extraites
 des courbes reconstruites :
@@ -304,9 +297,9 @@ Le surrogate est gelé pendant l'entraînement du MLP : ses poids ne sont
 pas modifiés, mais le gradient peut traverser le surrogate afin
 d'optimiser le MLP. [2]
 
-======================================================================
+
 8. PARAMÈTRES D'ENTRAÎNEMENT
-======================================================================
+
 
 Les principaux hyperparamètres du MLP sont :
 
@@ -324,9 +317,9 @@ loss de validation ne s'améliore pas. Un mécanisme d'early stopping arrête
 l'entraînement après 40 époques sans amélioration de la loss de
 validation. [2]
 
-======================================================================
+
 9. ÉVALUATION DU MLP
-======================================================================
+
 
 La cellule predict.py réalise les opérations suivantes :
 
@@ -364,9 +357,9 @@ L'extraction de Vth repose sur une interpolation linéaire au croisement :
 Si une courbe ne croise pas cette valeur cible, la valeur Vth associée
 est définie comme NaN. [2]
 
-======================================================================
+
 10. TEST D'UN ÉCHANTILLON DU JEU DE TEST
-======================================================================
+
 
 La cellule predict_one_Xtest_sample.py permet d'évaluer visuellement un
 échantillon individuel du jeu de test.
@@ -391,9 +384,9 @@ Les paramètres prédits sont sauvegardés dans le fichier :
 
     parameters_Xtest_sample_<index>_mlp.txt
 
-======================================================================
+
 11. UTILISATION RAPIDE
-======================================================================
+
 
 Première utilisation complète :
 
@@ -425,9 +418,9 @@ Première utilisation complète :
 
            mosfet_mlp_10_10_25C/
 
-======================================================================
+
 12. REMARQUES IMPORTANTES
-======================================================================
+
 
 - Le seed est fixé à 42 afin de produire un découpage
   train / validation / test reproductible.
@@ -444,5 +437,3 @@ Première utilisation complète :
 - Les courbes externes ou les données de test doivent respecter l'ordre
   de canaux et l'aplatissement canal-major utilisés lors de
   l'entraînement.
-
-======================================================================
